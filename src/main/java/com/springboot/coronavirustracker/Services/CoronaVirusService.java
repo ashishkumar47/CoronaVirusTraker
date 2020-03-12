@@ -10,6 +10,8 @@ import javax.annotation.PostConstruct;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +25,7 @@ import okhttp3.Response;
 public class CoronaVirusService {
     private static String VIRUS_DATA_URL="https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Confirmed.csv";
 	private final static OkHttpClient httpClient = new OkHttpClient();
+	Logger logger = LoggerFactory.getLogger(CoronaVirusService.class);
 
 	@PostConstruct
 	@Scheduled(cron = "0 0 */8 ? * *")
@@ -33,6 +36,7 @@ public class CoronaVirusService {
 		try {
 			 response = httpClient.newCall(request).execute();
 			StringReader csvReader = new StringReader(response.body().string());
+			logger.info("started fetching data from CSV file");
 			Iterable<CSVRecord> records = CSVFormat.DEFAULT.withFirstRecordAsHeader().parse(csvReader);
 			for (CSVRecord record : records) {
 				int size = record.size();
@@ -48,9 +52,11 @@ public class CoronaVirusService {
 						record.get("Country/Region"), latestCases, latestCases - prevCases);
 				stats.add(locationStats);
 			}
+			logger.info("Finished fetching data from CSV file");
 			return stats;
 		}
 		catch(Exception exception) {
+			logger.error("Exception in parsing data from CSV file", exception);
 			throw new IOException("Unexpected code " + response);
 		}
 
