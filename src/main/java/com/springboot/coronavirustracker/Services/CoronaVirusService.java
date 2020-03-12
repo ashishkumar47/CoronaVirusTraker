@@ -9,9 +9,10 @@ import javax.annotation.PostConstruct;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.apache.commons.lang3.StringUtils;
+
 import com.springboot.coronavirustracker.models.LocationStats;
 
 import okhttp3.OkHttpClient;
@@ -36,7 +37,10 @@ public class CoronaVirusService {
 			for (CSVRecord record : records) {
 				int size = record.size();
 				int latestCases = 0;
-				if (StringUtils.isNotBlank(record.get(size - 1))) {
+				if (StringUtils.isBlank(record.get(size - 1))) {
+					latestCases = Integer.parseInt(record.get(size - 2));
+				}
+				else {
 					latestCases = Integer.parseInt(record.get(size - 1));
 				}
 				int prevCases=Integer.parseInt(record.get(size - 2));
