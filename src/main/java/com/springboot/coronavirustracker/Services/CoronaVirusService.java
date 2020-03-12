@@ -11,7 +11,7 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-
+import org.apache.commons.lang3.StringUtils;
 import com.springboot.coronavirustracker.models.LocationStats;
 
 import okhttp3.OkHttpClient;
@@ -35,7 +35,10 @@ public class CoronaVirusService {
 			Iterable<CSVRecord> records = CSVFormat.DEFAULT.withFirstRecordAsHeader().parse(csvReader);
 			for (CSVRecord record : records) {
 				int size = record.size();
-				int latestCases=Integer.parseInt(record.get(size - 1));
+				int latestCases = 0;
+				if (StringUtils.isNotBlank(record.get(size - 1))) {
+					latestCases = Integer.parseInt(record.get(size - 1));
+				}
 				int prevCases=Integer.parseInt(record.get(size - 2));
 				LocationStats locationStats = new LocationStats(record.get("Province/State"),
 						record.get("Country/Region"), latestCases, latestCases - prevCases);
