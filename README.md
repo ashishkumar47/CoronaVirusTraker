@@ -1,3 +1,2 @@
 # CoronaVirusTraker
-App link:
-https://coronavirustraker.herokuapp.com/
+[App link](https://coronavirustraker.herokuapp.com/).
